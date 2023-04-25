@@ -1,7 +1,7 @@
 import './App.css';
 import music from './assets/musica-clasica.png';
 import diagram from './assets/markov.jpg';
-import { useState } from 'react';
+import { useState, useEffect, useRef} from 'react';
 import * as Tone from 'tone';
 
 function App() {
@@ -47,6 +47,33 @@ function App() {
       }
     }
   }
+
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const audio = useRef(new Audio('/piano.mp3'));
+
+  useEffect(() => {
+    const handleEnded = () => {
+      setIsMusicPlaying(false);
+    }
+
+    audio.current.addEventListener('ended', handleEnded);
+
+    return () => {
+      audio.current.removeEventListener('ended', handleEnded);
+    }
+  }, []);
+
+  const handleMusic = () => {
+    if (!audio.current.paused) {
+      audio.current.pause();
+      audio.current.currentTime = 0;
+      setIsMusicPlaying(false);
+    } else {
+      audio.current.loop = true;
+      audio.current.play();
+      setIsMusicPlaying(true);
+    }
+  };
 
   return (
     <div>
@@ -112,6 +139,18 @@ function App() {
               onClick={handleClick}
               >
               Siguiente nota
+            </button>
+          </div>
+          <div>
+            <h2 className='text-xl text-gray-700'>Progresión de acordes</h2>
+            <h3 className='text-xl text-gray-700'>F - Am - Dm - Bb</h3>
+          </div>
+          <div>
+            <button 
+              className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              onClick={handleMusic}
+              >
+              {isMusicPlaying ? "Detener" : "Reproducir"}
             </button>
           </div>
         </div>
